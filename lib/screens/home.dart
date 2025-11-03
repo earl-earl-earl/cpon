@@ -25,7 +25,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   bool _isAscending = false; // false = descending, true = ascending
 
   late AnimationController _listAnimationController;
-  late AnimationController _addButtonController;
   late AnimationController _sortAnimationController;
   final List<AnimationController> _cardControllers = [];
 
@@ -39,26 +38,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       duration: const Duration(milliseconds: 600),
     );
 
-    _addButtonController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 400),
-    );
-
     _sortAnimationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
 
     _loadGoals();
-
-    // Animate add button on load
-    _addButtonController.forward();
   }
 
   @override
   void dispose() {
     _listAnimationController.dispose();
-    _addButtonController.dispose();
     _sortAnimationController.dispose();
     for (var controller in _cardControllers) {
       controller.dispose();
@@ -165,16 +155,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Future<void> _addGoal() async {
-    // Scale down animation
-    await _addButtonController.reverse();
-
     final result = await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const AddGoalScreen()),
     );
-
-    // Scale up animation
-    _addButtonController.forward();
 
     if (result != null && result is Goal) {
       // Light haptic feedback for adding a goal
@@ -615,41 +599,33 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             // Add Goal Button
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 24.w),
-              child: ScaleTransition(
-                scale: Tween<double>(begin: 0.8, end: 1.0).animate(
-                  CurvedAnimation(
-                    parent: _addButtonController,
-                    curve: Curves.elasticOut,
+              child: SizedBox(
+                width: double.infinity,
+                height: 56.h,
+                child: ElevatedButton(
+                  onPressed: _addGoal,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue.shade600,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16.r),
+                    ),
+                    elevation: 2,
+                    shadowColor: Colors.blue.shade200,
                   ),
-                ),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 56.h,
-                  child: ElevatedButton(
-                    onPressed: _addGoal,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue.shade600,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16.r),
-                      ),
-                      elevation: 2,
-                      shadowColor: Colors.blue.shade200,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(LucideIcons.circlePlus, size: 24),
-                        SizedBox(width: 8.w),
-                        Text(
-                          'Add a Goal',
-                          style: TextStyle(
-                            fontSize: 18.sp,
-                            fontWeight: FontWeight.w600,
-                          ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(LucideIcons.circlePlus, size: 24),
+                      SizedBox(width: 8.w),
+                      Text(
+                        'Add a Goal',
+                        style: TextStyle(
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.w600,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),

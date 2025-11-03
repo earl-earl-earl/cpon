@@ -50,116 +50,152 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Skip button (hidden on last page)
-            if (currentPage != onboardingPages.length - 1)
-              Align(
-                alignment: Alignment.topRight,
-                child: Padding(
-                  padding: EdgeInsets.all(16.0.r),
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const WelcomeScreen(),
+      body: Stack(
+        children: [
+          // Decorative background circles
+          Positioned(
+            top: -100.h,
+            right: -80.w,
+            child: Container(
+              width: 300.w,
+              height: 300.h,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: colorScheme.primaryContainer.withOpacity(0.3),
+              ),
+            ),
+          ),
+          Positioned(
+            top: -50.h,
+            right: -150.w,
+            child: Container(
+              width: 280.w,
+              height: 280.h,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: colorScheme.secondaryContainer.withOpacity(0.25),
+              ),
+            ),
+          ),
+
+          // Main content
+          SafeArea(
+            child: Column(
+              children: [
+                // Skip button (hidden on last page)
+                if (currentPage != onboardingPages.length - 1)
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: Padding(
+                      padding: EdgeInsets.all(16.0.r),
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const WelcomeScreen(),
+                            ),
+                          );
+                        },
+                        child: Text(
+                          'Skip',
+                          style: TextStyle(color: Colors.grey, fontSize: 16.sp),
                         ),
-                      );
+                      ),
+                    ),
+                  )
+                else
+                  SizedBox(height: 56.h),
+
+                // PageView for onboarding pages
+                Expanded(
+                  child: PageView.builder(
+                    controller: _pageController,
+                    onPageChanged: (index) {
+                      setState(() {
+                        currentPage = index;
+                      });
                     },
-                    child: Text(
-                      'Skip',
-                      style: TextStyle(color: Colors.grey, fontSize: 16.sp),
+                    itemCount: onboardingPages.length,
+                    itemBuilder: (context, index) {
+                      return OnboardingPage(data: onboardingPages[index]);
+                    },
+                  ),
+                ),
+
+                // Page indicators
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(
+                    onboardingPages.length,
+                    (index) => Container(
+                      margin: EdgeInsets.symmetric(horizontal: 4.w),
+                      width: currentPage == index ? 24.w : 8.w,
+                      height: 8.h,
+                      decoration: BoxDecoration(
+                        color: currentPage == index
+                            ? Colors.blue
+                            : Colors.grey.shade300,
+                        borderRadius: BorderRadius.circular(4.r),
+                      ),
                     ),
                   ),
                 ),
-              )
-            else
-              SizedBox(height: 56.h),
 
-            // PageView for onboarding pages
-            Expanded(
-              child: PageView.builder(
-                controller: _pageController,
-                onPageChanged: (index) {
-                  setState(() {
-                    currentPage = index;
-                  });
-                },
-                itemCount: onboardingPages.length,
-                itemBuilder: (context, index) {
-                  return OnboardingPage(data: onboardingPages[index]);
-                },
-              ),
-            ),
+                SizedBox(height: 32.h),
 
-            // Page indicators
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
-                onboardingPages.length,
-                (index) => Container(
-                  margin: EdgeInsets.symmetric(horizontal: 4.w),
-                  width: currentPage == index ? 24.w : 8.w,
-                  height: 8.h,
-                  decoration: BoxDecoration(
-                    color: currentPage == index
-                        ? Colors.blue
-                        : Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(4.r),
+                // Next/Get Started button
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 24.w,
+                    vertical: 24.h,
                   ),
-                ),
-              ),
-            ),
-
-            SizedBox(height: 32.h),
-
-            // Next/Get Started button
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
-              child: SizedBox(
-                width: double.infinity,
-                height: 56.h,
-                child: ElevatedButton(
-                  onPressed: () {
-                    if (currentPage == onboardingPages.length - 1) {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const WelcomeScreen(),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 56.h,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (currentPage == onboardingPages.length - 1) {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const WelcomeScreen(),
+                            ),
+                          );
+                        } else {
+                          _pageController.nextPage(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                          );
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.r),
                         ),
-                      );
-                    } else {
-                      _pageController.nextPage(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                      );
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.r),
-                    ),
-                  ),
-                  child: Text(
-                    currentPage == onboardingPages.length - 1
-                        ? 'Get Started'
-                        : 'Next',
-                    style: TextStyle(
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      ),
+                      child: Text(
+                        currentPage == onboardingPages.length - 1
+                            ? 'Get Started'
+                            : 'Next',
+                        style: TextStyle(
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

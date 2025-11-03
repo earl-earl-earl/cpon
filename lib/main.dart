@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -6,6 +7,17 @@ import 'screens/onboarding.dart';
 import 'screens/main_screen.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Set status bar to white background with dark icons
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.white,
+      statusBarIconBrightness: Brightness.dark,
+      statusBarBrightness: Brightness.light,
+    ),
+  );
+
   runApp(const MyApp());
 }
 
@@ -24,6 +36,16 @@ class MyApp extends StatelessWidget {
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
             textTheme: GoogleFonts.manropeTextTheme(),
+            scaffoldBackgroundColor: Colors.white,
+            appBarTheme: const AppBarTheme(
+              backgroundColor: Colors.white,
+              elevation: 0,
+              systemOverlayStyle: SystemUiOverlayStyle(
+                statusBarColor: Colors.white,
+                statusBarIconBrightness: Brightness.dark,
+                statusBarBrightness: Brightness.light,
+              ),
+            ),
           ),
           debugShowCheckedModeBanner: false,
           home: const SplashScreen(),
@@ -45,7 +67,34 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _checkUser();
+    _initializeApp();
+  }
+
+  Future<void> _initializeApp() async {
+    // Preload all images in parallel
+    await Future.wait([
+      precacheImage(const AssetImage('assets/images/shasha_wave.png'), context),
+      precacheImage(
+        const AssetImage('assets/images/shasha_money.png'),
+        context,
+      ),
+      precacheImage(
+        const AssetImage('assets/images/shasha_tiptoe.png'),
+        context,
+      ),
+      precacheImage(const AssetImage('assets/images/shasha_sad.png'), context),
+      precacheImage(const AssetImage('assets/images/shasha_plan.png'), context),
+      precacheImage(
+        const AssetImage('assets/images/shasha_write.png'),
+        context,
+      ),
+      precacheImage(
+        const AssetImage('assets/images/shasha_rocket.png'),
+        context,
+      ),
+    ]);
+
+    await _checkUser();
   }
 
   Future<void> _checkUser() async {

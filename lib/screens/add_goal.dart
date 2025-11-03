@@ -338,7 +338,9 @@ class _AddGoalScreenState extends State<AddGoalScreen> {
                       SizedBox(height: 8.h),
                       TextFormField(
                         controller: _costController,
-                        decoration: _buildInputDecoration('35000'),
+                        decoration: _buildInputDecoration(
+                          numberFormat.format(35000),
+                        ),
                         keyboardType: TextInputType.number,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -799,7 +801,13 @@ class _AddGoalScreenState extends State<AddGoalScreen> {
                                                   ),
                                                   SizedBox(width: 8.w),
                                                   Text(
-                                                    _savingFrequency == 'week' ? (_periodsSaved == 1 ? 'week' : 'weeks') : (_periodsSaved == 1 ? 'month' : 'months'),
+                                                    _savingFrequency == 'week'
+                                                        ? (_periodsSaved == 1
+                                                              ? 'week'
+                                                              : 'weeks')
+                                                        : (_periodsSaved == 1
+                                                              ? 'month'
+                                                              : 'months'),
                                                     style: TextStyle(
                                                       fontSize: 20.sp,
                                                       color: Colors.white,

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/onboarding.dart';
 import 'screens/main_screen.dart';
@@ -35,7 +34,7 @@ class MyApp extends StatelessWidget {
           title: 'C-Pon',
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-            textTheme: GoogleFonts.manropeTextTheme(),
+            fontFamily: 'Manrope',
             scaffoldBackgroundColor: Colors.white,
             appBarTheme: const AppBarTheme(
               backgroundColor: Colors.white,

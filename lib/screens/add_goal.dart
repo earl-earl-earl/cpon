@@ -72,7 +72,37 @@ class _AddGoalScreenState extends State<AddGoalScreen> {
     return _amountNeeded / monthsUntil;
   }
 
-  // Calculated values for SACRIFICE MODE
+  // Get fractional periods for display
+  String get _periodsDisplayText {
+    if (_targetDatePicker == null) return '';
+    final daysUntil = _targetDatePicker!.difference(DateTime.now()).inDays;
+    if (daysUntil <= 0) return '0 days';
+
+    if (_savingFrequency == 'week') {
+      final weeks = daysUntil ~/ 7; // Integer division
+      final days = daysUntil % 7; // Remainder
+
+      if (weeks == 0) {
+        return '$days ${days == 1 ? 'day' : 'days'}';
+      } else if (days == 0) {
+        return '$weeks ${weeks == 1 ? 'week' : 'weeks'}';
+      } else {
+        return '$weeks ${weeks == 1 ? 'week' : 'weeks'} and $days ${days == 1 ? 'day' : 'days'}';
+      }
+    } else {
+      final months = daysUntil ~/ 30;
+      final days = daysUntil % 30;
+
+      if (months == 0) {
+        return '$days ${days == 1 ? 'day' : 'days'}';
+      } else if (days == 0) {
+        return '$months ${months == 1 ? 'month' : 'months'}';
+      } else {
+        return '$months ${months == 1 ? 'month' : 'months'} and $days ${days == 1 ? 'day' : 'days'}';
+      }
+    }
+  } // Calculated values for SACRIFICE MODE
+
   double get _sacrificeSavingsPerWeek {
     final cost = double.tryParse(_sacrificeCostController.text) ?? 0;
     return cost * _sacrificeFrequency;
@@ -127,6 +157,7 @@ class _AddGoalScreenState extends State<AddGoalScreen> {
         savingAmount: savingAmount,
         savingFrequency: _savingFrequency,
         createdAt: DateTime.now(),
+        fixedTargetDate: !_isTimeMode ? _targetDatePicker : null,
       );
 
       Navigator.pop(context, goal);
@@ -144,10 +175,118 @@ class _AddGoalScreenState extends State<AddGoalScreen> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: ColorScheme.light(
-              primary: Colors.blue.shade600,
-              onPrimary: Colors.white,
-              surface: Colors.white,
-              onSurface: Colors.black,
+              primary:
+                  Colors.blue.shade600, // Header background & selected date
+              onPrimary: Colors.white, // Header text & selected date text
+              surface: Colors.white, // Dialog background
+              onSurface: Colors.black87, // Calendar text
+              surfaceTint: Colors.transparent, // Remove material tint
+            ),
+            // Customize dialog shape
+            dialogTheme: DialogThemeData(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24.r),
+              ),
+              elevation: 8,
+              backgroundColor: Colors.white,
+            ),
+            // Customize date picker header
+            datePickerTheme: DatePickerThemeData(
+              backgroundColor: Colors.white,
+              headerBackgroundColor: Colors.blue.shade600,
+              headerForegroundColor: Colors.white,
+              // Customize day cells
+              dayStyle: TextStyle(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+              // Today's date style
+              todayForegroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
+                  return Colors.white;
+                }
+                return Colors.blue.shade600;
+              }),
+              todayBackgroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
+                  return Colors.blue.shade600;
+                }
+                return Colors.blue.shade50;
+              }),
+              todayBorder: BorderSide(color: Colors.blue.shade600, width: 2),
+              // Selected date style
+              dayForegroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
+                  return Colors.white;
+                }
+                if (states.contains(WidgetState.disabled)) {
+                  return Colors.grey.shade300;
+                }
+                return Colors.black87;
+              }),
+              dayBackgroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
+                  return Colors.blue.shade600;
+                }
+                return Colors.transparent;
+              }),
+              // Weekday labels style
+              weekdayStyle: TextStyle(
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w700,
+                color: Colors.grey.shade600,
+              ),
+              // Year style
+              yearStyle: TextStyle(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+              yearForegroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
+                  return Colors.white;
+                }
+                return Colors.black87;
+              }),
+              yearBackgroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
+                  return Colors.blue.shade600;
+                }
+                return Colors.transparent;
+              }),
+              // Rounded shape for day cells
+              dayShape: WidgetStateProperty.all(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+              ),
+              yearShape: WidgetStateProperty.all(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+              ),
+              // Divider color
+              dividerColor: Colors.grey.shade200,
+              // Range picker colors (if ever used)
+              rangePickerBackgroundColor: Colors.blue.shade50,
+              rangePickerHeaderBackgroundColor: Colors.blue.shade600,
+              rangePickerHeaderForegroundColor: Colors.white,
+            ),
+            // Customize text button style for Cancel/OK
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.blue.shade600,
+                textStyle: TextStyle(
+                  fontSize: 15.sp,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.5,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+              ),
             ),
           ),
           child: child!,
@@ -999,74 +1138,6 @@ class _AddGoalScreenState extends State<AddGoalScreen> {
     );
   }
 
-  // Result page content
-  Widget _buildResultPage(NumberFormat numberFormat, ColorScheme colorScheme) {
-    if (_isTimeMode &&
-        _nameController.text.isNotEmpty &&
-        _costController.text.isNotEmpty) {
-      return SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(20.w),
-          child: Column(
-            children: [_buildTimeModeResult(numberFormat, colorScheme)],
-          ),
-        ),
-      );
-    } else if (!_isTimeMode &&
-        _nameController.text.isNotEmpty &&
-        _costController.text.isNotEmpty &&
-        _targetDatePicker != null) {
-      return SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(20.w),
-          child: Column(
-            children: [_buildSavingsModeResult(numberFormat, colorScheme)],
-          ),
-        ),
-      );
-    } else {
-      return _buildEmptyResultPlaceholder();
-    }
-  }
-
-  // Empty placeholder when no data
-  Widget _buildEmptyResultPlaceholder() {
-    return Container(
-      margin: EdgeInsets.all(20.w),
-      padding: EdgeInsets.all(32.w),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(
-          color: Colors.grey.shade300,
-          width: 2,
-          strokeAlign: BorderSide.strokeAlignInside,
-        ),
-      ),
-      child: Column(
-        children: [
-          Icon(LucideIcons.target, size: 48.sp, color: Colors.grey.shade400),
-          SizedBox(height: 12.h),
-          Text(
-            'Your goal result will appear here',
-            style: TextStyle(
-              fontSize: 16.sp,
-              color: Colors.grey.shade600,
-              fontWeight: FontWeight.w600,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          SizedBox(height: 4.h),
-          Text(
-            'Fill in the details below to get started',
-            style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade500),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-
   // Glassmorphic result for Time Mode
   Widget _buildTimeModeResult(
     NumberFormat numberFormat,
@@ -1349,13 +1420,32 @@ class _AddGoalScreenState extends State<AddGoalScreen> {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
+                      SizedBox(height: 12.h),
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 12.w,
+                          vertical: 6.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(8.r),
+                        ),
+                        child: Text(
+                          'for $_periodsDisplayText',
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
                 SizedBox(height: 16.h),
                 _buildGlassInfoRow(
                   'Amount needed',
-                  '${numberFormat.format(_amountNeeded)} more',
+                  numberFormat.format(_amountNeeded),
                   LucideIcons.target,
                 ),
                 SizedBox(height: 8.h),

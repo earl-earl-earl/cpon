@@ -295,6 +295,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           savingAmount: goal.savingAmount,
           savingFrequency: goal.savingFrequency,
           createdAt: goal.createdAt,
+          fixedTargetDate: goal.fixedTargetDate,
         );
         _sortGoals();
       });
@@ -321,7 +322,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           // Show progress modal
           await _showProgressModal(
             'Great progress!',
-            'You now have only ${updatedGoal.periodsRequired} ${updatedGoal.periodsRequired == 1 ? (updatedGoal.savingFrequency == 'week' ? 'week' : 'month') : (updatedGoal.savingFrequency == 'week' ? 'weeks' : 'months')} left!',
+            'You now have only ${updatedGoal.periodsDisplayText} left!',
           );
         } else {
           // Light haptic feedback for any update
@@ -1071,7 +1072,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     child: Text(
                       goal.currentSavings >= goal.totalCost
                           ? 'Completed'
-                          : '${goal.periodsRequired} ${goal.periodsRequired == 1 ? (goal.savingFrequency == 'week' ? 'week' : 'month') : (goal.savingFrequency == 'week' ? 'weeks' : 'months')}',
+                          : goal.periodsDisplayText,
                       style: TextStyle(
                         fontSize: 12.sp,
                         fontWeight: FontWeight.w700,

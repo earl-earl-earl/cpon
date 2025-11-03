@@ -191,6 +191,7 @@ class InsightsScreenState extends State<InsightsScreen> {
 
                   // Main content
                   Container(
+                    height: double.infinity,
                     decoration: BoxDecoration(
                       color: Colors.grey.shade50,
                       borderRadius: BorderRadius.only(

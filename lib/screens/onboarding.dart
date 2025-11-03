@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'welcome.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -226,7 +225,8 @@ class OnboardingPage extends StatelessWidget {
             children: [
               Text(
                 data.title,
-                style: GoogleFonts.manrope(
+                style: TextStyle(
+                  fontFamily: 'Manrope',
                   fontSize: 28.sp,
                   fontWeight: FontWeight.w900,
                   color: Colors.black87,
